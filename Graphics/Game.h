@@ -1,7 +1,7 @@
 #pragma once
-#include <SDL/SDL.h>
-#include <GL\glew.h>
 #include <vector>
+#include <SDL\SDL.h>
+#include <GL\glew.h>
 #include <NDjinn\GLSLProgram.h>
 #include <NDjinn\Sprite.h>
 #include <NDjinn\GLTexture.h>
@@ -15,8 +15,8 @@ private:
 	int _windowW;
 	int _windowH;
 	float _fps;
-	float _maxFps;
-	float _frameTime;
+	Uint32 _maxFps;
+	Uint32 _frameTime;
 
 	GameState _gameState;
 

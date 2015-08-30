@@ -6,7 +6,7 @@
 
 #include "Game.h"
 
-Game::Game() : _time(0), _window(nullptr), _windowW(1024), _windowH(768), _gameState(GameState::PLAY), _maxFps(60.0f)
+Game::Game() : _time(0), _window(nullptr), _windowW(1024), _windowH(768), _gameState(GameState::PLAY), _maxFps(60)
 {
 
 }
@@ -79,7 +79,7 @@ void Game::processInput() {
 
 void Game::gameLoop() {
 	while (_gameState != GameState::EXIT) {
-		float loopStart = SDL_GetTicks();
+		Uint32 loopStart = SDL_GetTicks();
 
 		processInput();
 		_time += 0.01f; //change to FPS
@@ -95,10 +95,10 @@ void Game::gameLoop() {
 		drawGame();
 
 		//FPS limiter
-		float loopEnd = SDL_GetTicks();
-		float elapsedTime = loopEnd - loopStart;
-		if (1000.0f / _maxFps > elapsedTime) {
-			SDL_Delay(1000.0f / _maxFps - elapsedTime);
+		Uint32 loopEnd = SDL_GetTicks();
+		Uint32 elapsedTime = loopEnd - loopStart;
+		if (1000.0f / (Uint32)_maxFps > elapsedTime) {
+			SDL_Delay(1000 / (Uint32)_maxFps - elapsedTime);
 		}
 	}
 }
@@ -127,11 +127,11 @@ void Game::drawGame() {
 
 void Game::calcFPS() {
 	static const int NUM_SAMPLES = 10;
-	static float frameTimeBuffer[NUM_SAMPLES];
-	static int frameNum = 0;
-	static float previousTicks = 0;
+	static Uint32 frameTimeBuffer[NUM_SAMPLES];
+	static Uint32 frameNum = 0;
+	static Uint32 previousTicks = 0;
 
-	float currentTicks = SDL_GetTicks();
+	Uint32 currentTicks = SDL_GetTicks();
 	_frameTime = currentTicks - previousTicks;
 
 	frameTimeBuffer[frameNum % NUM_SAMPLES] = _frameTime;

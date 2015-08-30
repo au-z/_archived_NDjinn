@@ -17,7 +17,7 @@ bool AssetManager::readFileToBuffer(std::vector<unsigned char>& buffer, std::str
 	//seek to the beginning for reading
 	file.seekg(0, std::ios::beg);
 	// remove header bytes
-	fileSize -= file.tellg();
+	fileSize -= (int)file.tellg();
 
 	buffer.resize(fileSize);
 	file.read((char *)&(buffer[0]), fileSize);

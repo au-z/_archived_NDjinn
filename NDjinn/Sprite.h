@@ -7,7 +7,7 @@
 class Sprite
 {
 private:
-	int _x, _y, _w, _h;
+	float _x, _y, _w, _h;
 	GLuint _vboID; 
 	GLTexture _tex;
 
