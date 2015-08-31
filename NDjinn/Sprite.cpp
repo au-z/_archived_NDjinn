@@ -2,6 +2,7 @@
 #include "Sprite.h"
 #include "Vertex.h"
 #include "AssetManager.h"
+using namespace NDjinn;
 
 Sprite::Sprite() : _vboID(0)
 {

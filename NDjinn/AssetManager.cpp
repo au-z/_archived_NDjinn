@@ -1,5 +1,6 @@
 #include "AssetManager.h"
 #include <fstream>
+using namespace NDjinn;
 
 TextureCache AssetManager::_textureCache;
 

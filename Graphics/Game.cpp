@@ -1,54 +1,35 @@
 #pragma once
 #include <iostream>
 #include <vector>
+
+#include <NDjinn\NDjinn.h>
 #include <NDjinn\Errors.h>
 #include <NDjinn\Sprite.h>
+#include <NDjinn\Window.h>
 
 #include "Game.h"
 
-Game::Game() : _time(0), _window(nullptr), _windowW(1024), _windowH(768), _gameState(GameState::PLAY), _maxFps(60)
+Game::Game() : _time(0), _windowW(1024), _windowH(768), _gameState(GameState::PLAY), _maxFps(60)
 {
-
 }
 
 Game::~Game()
 {
-
 }
 
 void Game::run() {
 	initSystems();
-	_sprites.push_back(new Sprite());
+	_sprites.push_back(new NDjinn::Sprite());
 	_sprites.back()->init(-1.0f, -1.0f, 1.0f, 1.0f, "assets/PNG/Enemys/Enemy_Broccoli1.png");
-	_sprites.push_back(new Sprite());
+	_sprites.push_back(new NDjinn::Sprite());
 	_sprites.back()->init(0.0f, 0.0f, 1.0f, 1.0f, "assets/PNG/Enemys/Enemy_Snowman1.png");
 	gameLoop();
 }
 
 void Game::initSystems() {
-	SDL_Init(SDL_INIT_EVERYTHING); // init SDL with everything
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	_window = SDL_CreateWindow("Game Engine",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,_windowW,_windowH,SDL_WINDOW_OPENGL);
-	if (_window == nullptr) {
-		fatalError("SDL window could not be created.");
-	}
+	NDjinn::init();
 
-	//openGL context
-	SDL_GLContext glContext = SDL_GL_CreateContext(_window);
-	if (glContext == nullptr) {
-		fatalError("SDL_GL context could not be created.");
-	}
-
-	GLenum error = glewInit();
-	if (error != GLEW_OK) { // 0
-		fatalError("Could not initialize GLEW.");
-	}
-
-	std::printf("*** OpenGL Version: %s ***\n", glGetString(GL_VERSION));
-	SDL_GL_SetSwapInterval(1); // V-SYNC
-
-	//bg color to black
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	_window.create("Djinn", _windowW, _windowH, 0);
 
 	initShaders();
 }
@@ -116,13 +97,13 @@ void Game::drawGame() {
 	GLuint timeLocation = _shaderProgram.getUniformLocation("time");
 	glUniform1f(timeLocation, _time); //send a variable to the shader
 
-	for (int i = 0; i < _sprites.size(); ++i) {
+	for (unsigned int i = 0; i < _sprites.size(); ++i) {
 		_sprites[i]->draw();
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	_shaderProgram.unuse();
-	SDL_GL_SwapWindow(_window);
+	_window.swapBuffer();
 }
 
 void Game::calcFPS() {
@@ -136,7 +117,7 @@ void Game::calcFPS() {
 
 	frameTimeBuffer[frameNum % NUM_SAMPLES] = _frameTime;
 
-	float frameTimeAvg = 0;
+	float frameTimeAvg = 0.0f;
 	if (frameNum > NUM_SAMPLES) {
 		for (int i = 0; i < NUM_SAMPLES; i++) {
 			frameTimeAvg += frameTimeBuffer[i];

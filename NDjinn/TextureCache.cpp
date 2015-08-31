@@ -3,6 +3,7 @@
 #include "TextureCache.h"
 #include "ImageLoader.h"
 #include "GLTexture.h"
+using namespace NDjinn;
 
 TextureCache::TextureCache()
 {

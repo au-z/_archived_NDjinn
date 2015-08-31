@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+using namespace NDjinn;
 
 GLSLProgram::GLSLProgram() : _numAttributes(0), _programId(0), _vertexShaderId(0), _fragmentShaderId(0)
 {

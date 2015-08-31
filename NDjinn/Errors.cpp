@@ -2,12 +2,15 @@
 #include <iostream>
 #include <SDL\SDL.h>
 #include <cstdlib>
+namespace NDjinn {
 
-void fatalError(std::string errorString) {
-	std::cout << errorString << std::endl;
-	std::cout << "Enter any key to quit..." << std::endl;
-	int msg;
-	std::cin >> msg;
-	SDL_Quit();
-	exit(69);
+	void fatalError(std::string errorString) {
+		std::cout << errorString << std::endl;
+		std::cout << "Enter any key to quit..." << std::endl;
+		int msg;
+		std::cin >> msg;
+		SDL_Quit();
+		exit(69);
+	}
+
 }

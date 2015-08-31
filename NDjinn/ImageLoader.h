@@ -2,7 +2,11 @@
 #include <string>
 #include "GLTexture.h"
 
-class ImageLoader {
-public:
-	static GLTexture loadPng(std::string filePath);
-};
+namespace NDjinn {
+
+	class ImageLoader {
+	public:
+		static GLTexture loadPng(std::string filePath);
+	};
+
+}

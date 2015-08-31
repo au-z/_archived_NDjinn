@@ -157,9 +157,11 @@
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="GLSLProgram.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="NDjinn.cpp" />
     <ClCompile Include="picoPng.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="TextureCache.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
@@ -167,10 +169,12 @@
     <ClInclude Include="GLSLProgram.h" />
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="ImageLoader.h" />
+    <ClInclude Include="NDjinn.h" />
     <ClInclude Include="picoPng.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

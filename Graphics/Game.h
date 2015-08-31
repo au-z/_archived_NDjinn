@@ -5,13 +5,14 @@
 #include <NDjinn\GLSLProgram.h>
 #include <NDjinn\Sprite.h>
 #include <NDjinn\GLTexture.h>
+#include <NDjinn\Window.h>
 
 enum class GameState { PLAY, EXIT };
 
 class Game
 {
 private:
-	SDL_Window* _window;
+	NDjinn::Window _window;
 	int _windowW;
 	int _windowH;
 	float _fps;
@@ -27,8 +28,8 @@ private:
 	void drawGame();
 	void calcFPS();
 
-	std::vector<Sprite*> _sprites;
-	GLSLProgram _shaderProgram;
+	std::vector<NDjinn::Sprite*> _sprites;
+	NDjinn::GLSLProgram _shaderProgram;
 
 	float _time;
 
@@ -39,4 +40,3 @@ public:
 	void run();
 
 };
-

@@ -2,6 +2,7 @@
 #include "picoPng.h"
 #include "AssetManager.h"
 #include "Errors.h"
+using namespace NDjinn;
 
 GLTexture ImageLoader::loadPng(std::string filePath) {
 	GLTexture texture = {};
