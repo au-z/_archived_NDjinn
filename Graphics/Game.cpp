@@ -11,6 +11,7 @@
 
 Game::Game() : _time(0), _windowW(1024), _windowH(768), _gameState(GameState::PLAY), _maxFps(60)
 {
+	_camera.init(_windowW, _windowH);
 }
 
 Game::~Game()
@@ -19,10 +20,12 @@ Game::~Game()
 
 void Game::run() {
 	initSystems();
+
 	_sprites.push_back(new NDjinn::Sprite());
-	_sprites.back()->init(-1.0f, -1.0f, 1.0f, 1.0f, "assets/PNG/Enemys/Enemy_Broccoli1.png");
+	_sprites.back()->init(0.0f, 0.0f, _windowW/2, _windowW/2, "assets/PNG/Enemys/Enemy_Broccoli1.png");
 	_sprites.push_back(new NDjinn::Sprite());
-	_sprites.back()->init(0.0f, 0.0f, 1.0f, 1.0f, "assets/PNG/Enemys/Enemy_Snowman1.png");
+	_sprites.back()->init(_windowW/2, 0.0f, _windowW / 2, _windowW / 2, "assets/PNG/Enemys/Enemy_Snowman1.png");
+
 	gameLoop();
 }
 
@@ -44,15 +47,40 @@ void Game::initShaders() {
 
 void Game::processInput() {
 	SDL_Event e;
+
+	const float CAMERA_SPEED = 20.0f;
+	const float SCALE_SPEED = 0.1f;
 	
 	while (SDL_PollEvent(&e) == 1) {
 		//determine event type
 		switch (e.type) {
-		case SDL_QUIT: 
+		case SDL_QUIT:
 			_gameState = GameState::EXIT;
 			break;
 		case SDL_MOUSEMOTION:
 			//std::cout << e.motion.x << "," << e.motion.y << std::endl;
+			break;
+		case SDL_KEYDOWN:
+			switch (e.key.keysym.sym) {
+			case SDLK_w:
+				_camera.setPos(_camera.getPos() + glm::vec2(0.0f, CAMERA_SPEED));
+				break;
+				case SDLK_s:
+					_camera.setPos(_camera.getPos() + glm::vec2(0.0f, -CAMERA_SPEED));
+					break;
+				case SDLK_a:
+					_camera.setPos(_camera.getPos() + glm::vec2(-CAMERA_SPEED, 0.0f));
+					break;
+				case SDLK_d:
+					_camera.setPos(_camera.getPos() + glm::vec2(CAMERA_SPEED, 0.0f));
+					break;
+				case SDLK_q:
+					_camera.setScale(_camera.getScale() + SCALE_SPEED);
+					break;
+				case SDLK_e:
+					_camera.setScale(_camera.getScale() - SCALE_SPEED);
+					break;
+			}
 			break;
 		}
 	}
@@ -73,6 +101,7 @@ void Game::gameLoop() {
 			frameCounter = 0;
 		}
 
+		_camera.update();
 		drawGame();
 
 		//FPS limiter
@@ -96,6 +125,11 @@ void Game::drawGame() {
 
 	GLuint timeLocation = _shaderProgram.getUniformLocation("time");
 	glUniform1f(timeLocation, _time); //send a variable to the shader
+
+	//get camera matrix
+	GLint pLocation = _shaderProgram.getUniformLocation("P");
+	glm::mat4 camMatrix = _camera.getCamMatrix();
+	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(camMatrix[0][0]));
 
 	for (unsigned int i = 0; i < _sprites.size(); ++i) {
 		_sprites[i]->draw();

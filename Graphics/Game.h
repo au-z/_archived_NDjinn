@@ -6,6 +6,7 @@
 #include <NDjinn\Sprite.h>
 #include <NDjinn\GLTexture.h>
 #include <NDjinn\Window.h>
+#include <NDjinn\Camera2D.h>
 
 enum class GameState { PLAY, EXIT };
 
@@ -30,6 +31,7 @@ private:
 
 	std::vector<NDjinn::Sprite*> _sprites;
 	NDjinn::GLSLProgram _shaderProgram;
+	NDjinn::Camera2D _camera;
 
 	float _time;
 
