@@ -7,6 +7,11 @@
 #include <NDjinn\GLTexture.h>
 #include <NDjinn\Window.h>
 #include <NDjinn\Camera2D.h>
+#include <NDjinn\SpriteBatch.h>
+#include <NDjinn\InputManager.h>
+#include <NDjinn\Timing.h>
+
+#include "Bullet.h"
 
 enum class GameState { PLAY, EXIT };
 
@@ -16,9 +21,6 @@ private:
 	NDjinn::Window _window;
 	int _windowW;
 	int _windowH;
-	float _fps;
-	Uint32 _maxFps;
-	Uint32 _frameTime;
 
 	GameState _gameState;
 
@@ -29,11 +31,16 @@ private:
 	void drawGame();
 	void calcFPS();
 
-	std::vector<NDjinn::Sprite*> _sprites;
 	NDjinn::GLSLProgram _shaderProgram;
 	NDjinn::Camera2D _camera;
+	NDjinn::SpriteBatch _spriteBatch;
+	NDjinn::InputManager _input;
+	NDjinn::FpsLimiter _fpsLimiter;
 
+	float _fps;
 	float _time;
+
+	std::vector<Bullet> _bullets;
 
 public:
 	Game();

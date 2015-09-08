@@ -6,10 +6,12 @@
 #include <NDjinn\Errors.h>
 #include <NDjinn\Sprite.h>
 #include <NDjinn\Window.h>
+#include <NDjinn\AssetManager.h>
+#include <NDjinn\GLTexture.h>
 
 #include "Game.h"
 
-Game::Game() : _time(0), _windowW(1024), _windowH(768), _gameState(GameState::PLAY), _maxFps(60)
+Game::Game() : _time(0), _windowW(1024), _windowH(768), _gameState(GameState::PLAY)
 {
 	_camera.init(_windowW, _windowH);
 }
@@ -20,12 +22,6 @@ Game::~Game()
 
 void Game::run() {
 	initSystems();
-
-	_sprites.push_back(new NDjinn::Sprite());
-	_sprites.back()->init(0.0f, 0.0f, _windowW/2, _windowW/2, "assets/PNG/Enemys/Enemy_Broccoli1.png");
-	_sprites.push_back(new NDjinn::Sprite());
-	_sprites.back()->init(_windowW/2, 0.0f, _windowW / 2, _windowW / 2, "assets/PNG/Enemys/Enemy_Snowman1.png");
-
 	gameLoop();
 }
 
@@ -35,6 +31,8 @@ void Game::initSystems() {
 	_window.create("Djinn", _windowW, _windowH, 0);
 
 	initShaders();
+	_spriteBatch.init();
+	_fpsLimiter.init(60.0f);
 }
 
 void Game::initShaders() {
@@ -45,71 +43,96 @@ void Game::initShaders() {
 	_shaderProgram.linkShaders();
 }
 
+void Game::gameLoop() {
+	while (_gameState != GameState::EXIT) {
+		_fpsLimiter.begin();
+
+		processInput();
+		_camera.update();
+
+		for (int i = 0; i < _bullets.size();) {
+			if (_bullets[i].update() == true) {
+				_bullets[i] = _bullets.back(); // swap with back of vector
+				_bullets.pop_back();
+			}
+			else {
+				++i; // only increment if bullet is not destroyed
+			}
+		}
+
+		drawGame();
+
+		_fps = _fpsLimiter.end();
+
+		static int frameCounter = 0;
+		frameCounter++;
+		if (frameCounter == 10) {
+			//std::cout << "FPS: " << _fps << std::endl;
+			frameCounter = 0;
+		}
+	}
+}
+
 void Game::processInput() {
 	SDL_Event e;
 
-	const float CAMERA_SPEED = 20.0f;
-	const float SCALE_SPEED = 0.1f;
-	
+	const float CAMERA_SPEED = 2.0f;
+	const float SCALE_SPEED = 0.06f;
+
+	const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+
 	while (SDL_PollEvent(&e) == 1) {
 		//determine event type
 		switch (e.type) {
 		case SDL_QUIT:
 			_gameState = GameState::EXIT;
 			break;
-		case SDL_MOUSEMOTION:
-			//std::cout << e.motion.x << "," << e.motion.y << std::endl;
-			break;
 		case SDL_KEYDOWN:
-			switch (e.key.keysym.sym) {
-			case SDLK_w:
-				_camera.setPos(_camera.getPos() + glm::vec2(0.0f, CAMERA_SPEED));
-				break;
-				case SDLK_s:
-					_camera.setPos(_camera.getPos() + glm::vec2(0.0f, -CAMERA_SPEED));
-					break;
-				case SDLK_a:
-					_camera.setPos(_camera.getPos() + glm::vec2(-CAMERA_SPEED, 0.0f));
-					break;
-				case SDLK_d:
-					_camera.setPos(_camera.getPos() + glm::vec2(CAMERA_SPEED, 0.0f));
-					break;
-				case SDLK_q:
-					_camera.setScale(_camera.getScale() + SCALE_SPEED);
-					break;
-				case SDLK_e:
-					_camera.setScale(_camera.getScale() - SCALE_SPEED);
-					break;
-			}
+			_input.keyDown(e.key.keysym.sym);
+			break;
+		case SDL_KEYUP:
+			_input.keyUp(e.key.keysym.sym);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			_input.keyDown(e.button.button);
+			break;
+		case SDL_MOUSEBUTTONUP:
+			_input.keyUp(e.button.button);
+			break;
+		case SDL_MOUSEMOTION:
+			_input.setMouseCoords(e.motion.x, e.motion.y);
 			break;
 		}
 	}
-}
 
-void Game::gameLoop() {
-	while (_gameState != GameState::EXIT) {
-		Uint32 loopStart = SDL_GetTicks();
+	if (_input.isKeyDown(SDLK_w)) {
+		_camera.setPos(_camera.getPos() + glm::vec2(0.0f, CAMERA_SPEED));
+	}
+	if (_input.isKeyDown(SDLK_s)) {
+		_camera.setPos(_camera.getPos() + glm::vec2(0.0f, -CAMERA_SPEED));
+	}
+	if (_input.isKeyDown(SDLK_a)) {
+		_camera.setPos(_camera.getPos() + glm::vec2(-CAMERA_SPEED, 0.0f));
+	}
+	if (_input.isKeyDown(SDLK_d)) {
+		_camera.setPos(_camera.getPos() + glm::vec2(CAMERA_SPEED, 0.0f));
+	}
+	if (_input.isKeyDown(SDLK_q)) {
+		_camera.setScale(_camera.getScale() + SCALE_SPEED);
+	}
+	if (_input.isKeyDown(SDLK_e)) {
+		_camera.setScale(_camera.getScale() - SCALE_SPEED);
+	}
 
-		processInput();
-		_time += 0.01f; //change to FPS
+	if (_input.isKeyDown(SDL_BUTTON_LEFT)) {
+		glm::vec2 mouseCoords = _camera.screenToWorldCoords(_input.getMouseCoords());
+		std::cout << mouseCoords.x << "," << mouseCoords.y << std::endl;
 
-		calcFPS();
-		static int frameCounter = 0;
-		frameCounter++;
-		if (frameCounter == 10) {
-			std::cout << "FPS: " << _fps << std::endl;
-			frameCounter = 0;
-		}
+		glm::vec2 playerPos(0.0f);
+		glm::vec2 dir(mouseCoords - playerPos);
+		dir = glm::normalize(dir); // create unit length vector
 
-		_camera.update();
-		drawGame();
-
-		//FPS limiter
-		Uint32 loopEnd = SDL_GetTicks();
-		Uint32 elapsedTime = loopEnd - loopStart;
-		if (1000.0f / (Uint32)_maxFps > elapsedTime) {
-			SDL_Delay(1000 / (Uint32)_maxFps - elapsedTime);
-		}
+		_bullets.emplace_back(playerPos, dir, 10.0f, 1000);
 	}
 }
 
@@ -123,49 +146,34 @@ void Game::drawGame() {
 	GLint textureLocation = _shaderProgram.getUniformLocation("texSampler");
 	glUniform1i(textureLocation, 0); //send textureLocation to shader
 
-	GLuint timeLocation = _shaderProgram.getUniformLocation("time");
-	glUniform1f(timeLocation, _time); //send a variable to the shader
+	//GLuint timeLocation = _shaderProgram.getUniformLocation("time");
+	//glUniform1f(timeLocation, _time); //send a variable to the shader
 
 	//get camera matrix
 	GLint pLocation = _shaderProgram.getUniformLocation("P");
 	glm::mat4 camMatrix = _camera.getCamMatrix();
 	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(camMatrix[0][0]));
 
-	for (unsigned int i = 0; i < _sprites.size(); ++i) {
-		_sprites[i]->draw();
+	_spriteBatch.begin();
+
+	glm::vec4 pos(0.0f, 0.0f, 50.0f, 50.0f);
+	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
+	static NDjinn::GLTexture tex = NDjinn::AssetManager::getTexture("assets/PNG/Enemys/Enemy_Mushroom2.png");
+	NDjinn::Color color;
+	color.r = 255;
+	color.g = 255;
+	color.b = 255;
+	color.a = 255;
+	_spriteBatch.draw(pos, uv, tex.id, 0.0f, color);
+
+	for (int i = 0; i < _bullets.size(); ++i) {
+		_bullets[i].draw(_spriteBatch);
 	}
+
+	_spriteBatch.end();
+	_spriteBatch.render();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	_shaderProgram.unuse();
 	_window.swapBuffer();
-}
-
-void Game::calcFPS() {
-	static const int NUM_SAMPLES = 10;
-	static Uint32 frameTimeBuffer[NUM_SAMPLES];
-	static Uint32 frameNum = 0;
-	static Uint32 previousTicks = 0;
-
-	Uint32 currentTicks = SDL_GetTicks();
-	_frameTime = currentTicks - previousTicks;
-
-	frameTimeBuffer[frameNum % NUM_SAMPLES] = _frameTime;
-
-	float frameTimeAvg = 0.0f;
-	if (frameNum > NUM_SAMPLES) {
-		for (int i = 0; i < NUM_SAMPLES; i++) {
-			frameTimeAvg += frameTimeBuffer[i];
-		}
-		frameTimeAvg /= NUM_SAMPLES;
-
-		if (frameTimeAvg > 0) {
-			_fps = 1000.0f / frameTimeAvg;
-		}
-	}
-	else {
-		_fps = 0.0f;
-	}
-
-	previousTicks = currentTicks;
-	frameNum++;
 }

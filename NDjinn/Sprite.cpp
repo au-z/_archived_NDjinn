@@ -55,9 +55,15 @@ void Sprite::mapVertexData(Vertex* vertexData) {
 
 void Sprite::draw() {
 
+
+
 	glBindTexture(GL_TEXTURE_2D, _tex.id); // do not unbind
 	glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+
 	glEnableVertexAttribArray(0); //send an array of positions
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
 	//position attribute
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 	//color attribute
@@ -66,6 +72,9 @@ void Sprite::draw() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
 	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
 }

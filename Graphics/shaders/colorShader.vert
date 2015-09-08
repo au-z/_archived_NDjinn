@@ -20,3 +20,4 @@ void main(){
 	fragmentColor = vertexColor;
 	fragmentUV = vec2(vertexUV.x, -vertexUV.y);
 }
+

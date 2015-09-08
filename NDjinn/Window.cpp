@@ -43,6 +43,9 @@ int Window::create(std::string windowName, int screenW, int screenH, unsigned in
 	std::printf("*** OpenGL Version: %s ***\n", glGetString(GL_VERSION));
 	SDL_GL_SetSwapInterval(1); // V-SYNC
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	//bg color to black
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 

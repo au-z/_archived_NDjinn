@@ -20,11 +20,11 @@ GLTexture TextureCache::getTexture(std::string texturePath) {
 		//load and insert into the map
 		GLTexture texture = ImageLoader::loadPng(texturePath);
 		_textureMap.insert(make_pair(texturePath, texture));
-		std::cout << "New texture loaded. \n";
+		//std::cout << "New texture loaded. \n";
 		return texture;
 	}
 	
-	std::cout << "Cached texture found...applying. \n";
+	//std::cout << "Cached texture found...applying. \n";
 	return mapIterator->second; // return the value from our iterator
 
 

@@ -20,6 +20,8 @@ namespace NDjinn {
 		void init(unsigned int camW, unsigned int camH);
 		void update();
 
+		glm::vec2 screenToWorldCoords(glm::vec2 screenCoords);
+
 		//setters
 		void setPos(glm::vec2& newPos) { _pos = newPos; _needsMatrixUpdate = true; }
 		void setScale(float newScale) { _scale = newScale; _needsMatrixUpdate = true; }

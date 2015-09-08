@@ -31,4 +31,12 @@ void Camera2D::update() {
 	}
 }
 
+glm::vec2 Camera2D::screenToWorldCoords(glm::vec2 screenCoords) {
+	screenCoords.y = _camH - screenCoords.y;
+	screenCoords -= glm::vec2(_camW / 2, _camH / 2); // 0, 0 at center
+	screenCoords /= _scale; // handle scale
+	screenCoords += _pos; // rely on center of camera position
+	return screenCoords;
+}
+
 
