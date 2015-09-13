@@ -10,6 +10,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Graphics", "Graphics\Graphi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NDjinn", "NDjinn\NDjinn.vcxproj", "{18FDE358-AD9B-46E9-8C14-52F567BA1891}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZomB", "ZomB\ZomB.vcxproj", "{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{18FDE358-AD9B-46E9-8C14-52F567BA1891} = {18FDE358-AD9B-46E9-8C14-52F567BA1891}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +39,14 @@ Global
 		{18FDE358-AD9B-46E9-8C14-52F567BA1891}.Release|x64.Build.0 = Release|x64
 		{18FDE358-AD9B-46E9-8C14-52F567BA1891}.Release|x86.ActiveCfg = Release|Win32
 		{18FDE358-AD9B-46E9-8C14-52F567BA1891}.Release|x86.Build.0 = Release|Win32
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Debug|x64.ActiveCfg = Debug|x64
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Debug|x64.Build.0 = Debug|x64
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Debug|x86.ActiveCfg = Debug|Win32
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Debug|x86.Build.0 = Debug|Win32
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Release|x64.ActiveCfg = Release|x64
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Release|x64.Build.0 = Release|x64
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Release|x86.ActiveCfg = Release|Win32
+		{5FDA08C9-0A07-44EB-94DF-0104DFFACD9C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

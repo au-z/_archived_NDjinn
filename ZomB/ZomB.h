@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include <SDL\SDL.h>
 #include <GL\glew.h>
 #include <NDjinn\GLSLProgram.h>
@@ -10,41 +9,42 @@
 #include <NDjinn\SpriteBatch.h>
 #include <NDjinn\InputManager.h>
 #include <NDjinn\Timing.h>
+#include <NDjinn\QNode.h>
 
-#include "Bullet.h"
+#include "Hero.h"
+#include "Peasant.h"
 
 enum class GameState { PLAY, EXIT };
 
-class Game
+class ZomB
 {
 private:
-	NDjinn::Window _window;
-	int _windowW;
-	int _windowH;
+	int _winW, _winH;
+	NDjinn::Window _win;
+	NDjinn::Camera2D _cam;
+	NDjinn::QNode* _collider;
+	NDjinn::GLSLProgram _shaderProgram;
+	NDjinn::SpriteBatch _sprites;
+	NDjinn::InputManager _input;
+	NDjinn::FpsLimiter _fpsLimiter;
 
-	GameState _gameState;
+	Hero _hero;
+	Peasant _peasant;
+
+	GameState _state;
 
 	void initSystems();
 	void initShaders();
 	void processInput();
-	void gameLoop();
-	void drawGame();
-
-	NDjinn::GLSLProgram _shaderProgram;
-	NDjinn::Camera2D _camera;
-	NDjinn::SpriteBatch _spriteBatch;
-	NDjinn::InputManager _input;
-	NDjinn::FpsLimiter _fpsLimiter;
+	void mainLoop();
+	void draw();
 
 	float _fps;
 	float _time;
-
-	std::vector<Bullet> _bullets;
-
 public:
-	Game();
-	~Game();
+	ZomB();
+	~ZomB();
 
 	void run();
-
 };
+

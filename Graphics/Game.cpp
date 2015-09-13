@@ -8,12 +8,13 @@
 #include <NDjinn\Window.h>
 #include <NDjinn\AssetManager.h>
 #include <NDjinn\GLTexture.h>
+#include <NDjinn\QNode.h>
 
 #include "Game.h"
 
 Game::Game() : _time(0), _windowW(1024), _windowH(768), _gameState(GameState::PLAY)
 {
-	_camera.init(_windowW, _windowH);
+	_camera.init(_windowW, _windowH, false);
 }
 
 Game::~Game()
@@ -29,6 +30,7 @@ void Game::initSystems() {
 	NDjinn::init();
 
 	_window.create("Djinn", _windowW, _windowH, 0);
+	_collider = new NDjinn::QNode(glm::vec4(-500.0f, -500.0f, 1000.0f, 1000.0f), nullptr);
 
 	initShaders();
 	_spriteBatch.init();
@@ -50,7 +52,7 @@ void Game::gameLoop() {
 		processInput();
 		_camera.update();
 
-		for (int i = 0; i < _bullets.size();) {
+		for (unsigned int i = 0; i < _bullets.size();) {
 			if (_bullets[i].update() == true) {
 				_bullets[i] = _bullets.back(); // swap with back of vector
 				_bullets.pop_back();
@@ -78,8 +80,6 @@ void Game::processInput() {
 
 	const float CAMERA_SPEED = 2.0f;
 	const float SCALE_SPEED = 0.06f;
-
-	const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
 
 	while (SDL_PollEvent(&e) == 1) {
 		//determine event type
@@ -166,7 +166,7 @@ void Game::drawGame() {
 	color.a = 255;
 	_spriteBatch.draw(pos, uv, tex.id, 0.0f, color);
 
-	for (int i = 0; i < _bullets.size(); ++i) {
+	for (unsigned int i = 0; i < _bullets.size(); ++i) {
 		_bullets[i].draw(_spriteBatch);
 	}
 

@@ -8,19 +8,23 @@ namespace NDjinn {
 	{
 	private:
 		unsigned int _camW, _camH;
+		bool _debug;
+
 		glm::vec2 _pos;
 		glm::mat4 _orthoMatrix;
 		glm::mat4 _camMatrix;
 		float _scale;
 		bool _needsMatrixUpdate;
+
 	public:
 		Camera2D();
 		~Camera2D();
 
-		void init(unsigned int camW, unsigned int camH);
+		void init(unsigned int camW, unsigned int camH, bool debug);
 		void update();
 
 		glm::vec2 screenToWorldCoords(glm::vec2 screenCoords);
+		bool isInView(glm::vec2& pos);
 
 		//setters
 		void setPos(glm::vec2& newPos) { _pos = newPos; _needsMatrixUpdate = true; }

@@ -12,14 +12,16 @@ namespace NDjinn {
 	private:
 		int _screenW, _screenH;
 		SDL_Window* _window;
-		int getScreenWidth() { return _screenW; }
-		int getScreenHeight() { return _screenH; }
 	public:
 		Window();
 		~Window();
 
 		void swapBuffer();
 		int create(std::string windowName, int screenW, int screenH, unsigned int currentFlags);
+		
+		//getters
+		int getScreenHeight() { return _screenH; }
+		int getScreenWidth() { return _screenW; }
 	};
 
 }

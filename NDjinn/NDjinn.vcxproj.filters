@@ -57,6 +57,9 @@
     <ClCompile Include="Timing.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="QNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h">
@@ -102,6 +105,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Timing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ICollidable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

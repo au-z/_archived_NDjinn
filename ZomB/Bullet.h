@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <NDjinn\SpriteBatch.h>
+#include <NDjinn\Camera2D.h>
 
 class Bullet
 {
@@ -15,6 +16,6 @@ public:
 	~Bullet();
 
 	void draw(NDjinn::SpriteBatch& sprite);
-	bool update(); // true if out of life
+	bool update(NDjinn::Camera2D& cam); // true if out of life
 };
 
