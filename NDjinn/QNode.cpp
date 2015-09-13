@@ -10,9 +10,9 @@ namespace NDjinn {
 
 	QNode::~QNode() {}
 
-	void QNode::subDiv() {
+	void QNode::grow() {
 		if (_children == nullptr) {
-			_children = (QNode**) malloc(4 * sizeof(QNode*));
+			_children = (QNode**)malloc(4 * sizeof(QNode*));
 			glm::vec4 tL(_xywh.x, _xywh.y + _xywh.w * 0.5f, _xywh.z * 0.5f, _xywh.w * 0.5f);
 			glm::vec4 tR(_xywh.x + _xywh.z * 0.5f, _xywh.y + _xywh.w * 0.5f, _xywh.z * 0.5f, _xywh.w * 0.5f);
 			glm::vec4 bL(_xywh.x, _xywh.y, _xywh.z * 0.5f, _xywh.w * 0.5f);
@@ -24,18 +24,60 @@ namespace NDjinn {
 		}
 		else {
 			for (int i = 0; i < 4; i++) {
-				_children[i]->subDiv();
+				_children[i]->grow();
+			}
+		}
+	}
+
+	int QNode::trim() {
+		if (_children == nullptr) return 1; //can't trim leaf nodes
+		// stage 1: find regions of similar resolution to combine
+		int combinableCount = 0;
+		for (int i = 0; i < 4; i++) {
+			if (_children[i]->_children == nullptr) { combinableCount++; }
+			else {
+				int trimmed = _children[i]->trim();
+				if (trimmed == 0){
+					combinableCount++;
+				}
+				else {
+					return 1; // no way we can get a combinable
+				}
+			}
+		}
+		// stage 2: detect and remove useless regions
+		if (combinableCount == 4) {
+			std::set<ICollidable*> combinedCollidables;
+			for (int i = 0; i < 4; i++) {
+				combinedCollidables.insert(_children[i]->_collidables.begin(), _children[i]->_collidables.end());
+			}
+			if (combinedCollidables.size() <= MAX_COLLIDABLES_PER_LEAF) {
+				//turn leaf parent into leaf
+				_collidables = combinedCollidables;
+				for (int i = 0; i < 4; i++) {
+					delete _children[i];
+				}
+				_children = nullptr;
+				return 0; // the leaves were trimmed
+			}
+			else {
+				return 1;
 			}
 		}
 	}
 
 	int QNode::addCollidable(ICollidable * obj) {
-		//subdivide unless regions are too small already
-		if (_collidables.size() == MAX_COLLIDABLES_PER_LEAF && _xywh.w >= MAX_DIVIDE_SIZE) {
-			subDiv();
-		}
-
 		if (_children == nullptr) {
+			//determine if subdivision is necessary
+			if (_collidables.size() + 1 >= MAX_COLLIDABLES_PER_LEAF && _xywh.w >= MAX_DIVIDE_SIZE) {
+				grow();
+				//update each collidable
+				CollideSet::iterator it = _collidables.begin();
+				while (it != _collidables.end()) {
+					updateCollidable(*it); //remove and re-add with new divided space
+				}
+				addCollidable(obj);
+			}
 			std::pair<CollideSet::iterator, bool> newInsertion;
 			newInsertion = _collidables.insert(obj);
 			if (!newInsertion.second) {
@@ -60,13 +102,13 @@ namespace NDjinn {
 		static glm::vec4 newPosDims(newPos.x, newPos.y, obj->getDims().z, obj->getDims().w);
 		if (_children == nullptr) { 
 			// leaf node
-			CollideSet::iterator collider = _collidables.begin();
-			while (collider != _collidables.end()) {
+			CollideSet::iterator it = _collidables.begin();
+			while (it != _collidables.end()) {
 				// add potential collidables
-				if (*collider != obj) {
-					collidables->insert(*collider);
+				if (*it != obj) {
+					collidables->insert(*it);
 				}
-				collider++;
+				it++;
 			}
 		}
 		else {
@@ -84,21 +126,22 @@ namespace NDjinn {
 		}
 	}
 
-	int QNode::removeCollidable(QNode* startNode, ICollidable * obj) {
-		QNode* targetRegion = findRegion(startNode, obj);
-		CollideSet::iterator collider = targetRegion->_collidables.begin();
-		while (collider != targetRegion->_collidables.end()) {
-			if (*collider == obj) {
-				targetRegion->_collidables.erase(collider);
+	int QNode::removeCollidable(ICollidable * obj) {
+		QNode* targetRegion = findRegion(this, obj);
+		CollideSet::iterator it = targetRegion->_collidables.begin();
+		while (it != targetRegion->_collidables.end()) {
+			if (*it == obj) {
+				targetRegion->_collidables.erase(it);
+				trim();
 				return 0;
 			}
-			collider++;
+			it++;
 		}
 		return 1;
 	}
-
-	int QNode::updateCollidable(QNode* startNode, ICollidable * obj) {
-		int res = removeCollidable(startNode, obj);
+	
+	int QNode::updateCollidable(ICollidable * obj) {
+		int res = removeCollidable(obj);
 		if (res == 1) return res;
 		return addCollidable(obj);
 	}

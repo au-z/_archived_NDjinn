@@ -11,10 +11,10 @@ namespace NDjinn {
 		const int MAX_COLLIDABLES_PER_LEAF = 1;
 		const int MAX_DIVIDE_SIZE = 10;
 		
-		glm::vec4 _xywh;
-		QNode * _parent;
-		QNode ** _children;
+		const glm::vec4 _xywh;
+		const QNode * _parent;
 
+		QNode ** _children;
 		typedef std::set<ICollidable*> CollideSet;
 		CollideSet _collidables;
 
@@ -24,12 +24,14 @@ namespace NDjinn {
 		QNode(glm::vec4& xywh, QNode* parent);
 		~QNode();
 
-		void subDiv();
+		void grow();
+		int trim(); // 0: trimming happened, 1: no trimming
+
 		int addCollidable(ICollidable* obj);
 		void getCollidables(ICollidable* obj, glm::vec2 newPos, bool inMotion, std::set<ICollidable*>* collidables);
-		int removeCollidable(QNode * startNode, ICollidable * obj);
+		int removeCollidable(ICollidable * obj);
 		// update presupposes obj has a new position
-		int updateCollidable(QNode * startNode, ICollidable * obj);
+		int updateCollidable(ICollidable * obj);
 
 		//traverse
 		QNode* down(int childIndex);
