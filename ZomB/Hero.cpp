@@ -22,7 +22,7 @@ void Hero::init(NDjinn::QNode* collider) {
 }
 
 void Hero::shoot(glm::vec2 dir) {
-	_bullets.emplace_back(getPos(), dir, _bulletSpeed, BULLET_LIFE);
+	_bullets.emplace_back(getPos(), dir, _bulletSpeed, _collider);
 }
 
 void Hero::move(glm::vec2 dir) {
