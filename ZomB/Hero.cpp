@@ -28,18 +28,18 @@ void Hero::shoot(glm::vec2 dir) {
 void Hero::move(glm::vec2 dir) {
 	glm::vec2 newPos(_xywh.x += dir.x, _xywh.y += dir.y);
 	_collider->getCollidables(this, newPos, true, &_collidables);
-	std::cout << "collider count = " << _collidables.size() << std::endl;
+	//std::cout << "collider count = " << _collidables.size() << std::endl;
 
 	//todo, react to collisions
 	_xywh.x += dir.x;
 	_xywh.y += dir.y;
 
-	std::cout << "Hero: " << _xywh.x << "," << _xywh.y << std::endl;
+	//std::cout << "Hero: " << _xywh.x << "," << _xywh.y << std::endl;
 }
 
 bool Hero::update(NDjinn::Camera2D& cam) {
 	updateBullets(cam);
-
+	_collider->updateCollidable(this);
 	_collidables.empty(); //clear set
 	return false;
 }

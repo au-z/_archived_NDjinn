@@ -54,7 +54,7 @@ void ZomB::mainLoop() {
 		_cam.update();
 
 		_hero.update(_cam);
-		_peasant.update(_hero.getPos());
+		//_peasant.update(_hero.getPos());
 		draw();
 
 		_fps = _fpsLimiter.end();
