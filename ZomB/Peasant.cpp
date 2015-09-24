@@ -5,7 +5,7 @@
 #include "Peasant.h"
 
 Peasant::Peasant() :
-	_xywh(100.0f, 100.0f, 50.0f, 50.0f),
+	_xywh(-100.0f, -100.0f, 50.0f, 50.0f),
 	_uv(0.0f, 0.0f, 1.0f, 1.0f),
 	_speed(5.0f),
 	_prevDirs(SMOOTHING_COUNT, glm::vec2(1.0))
@@ -20,7 +20,7 @@ void Peasant::init(NDjinn::QNode* collider, bool isZombie = false) {
 	setTex();
 	_color.r = 255; _color.g = 255; _color.b = 255; _color.a = 255;
 	_uv = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-	registerCollidable();
+	_collider->addCollidable(this);
 }
 
 bool Peasant::update(glm::vec2 heroPos) {
@@ -59,10 +59,4 @@ void Peasant::setTex() {
 	_tex = NDjinn::AssetManager::getTexture("assets/peasant/peasant.png");
 }
 
-void Peasant::registerCollidable() { _collider->addCollidable(this); }
-
 glm::vec4 Peasant::getDims() { return _xywh; }
-
-void Peasant::getCollidables(glm::vec2 newPos, bool isMoving, std::set<ICollidable*>* collidables)
-{
-}

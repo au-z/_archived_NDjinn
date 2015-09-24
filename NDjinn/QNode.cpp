@@ -11,6 +11,63 @@ namespace NDjinn {
 
 	QNode::~QNode() {}
 
+	bool QNode::addCollidable(ICollidable* obj) {
+		if (_children == nullptr) {
+			if (_collidables.size() == MAX_COLLIDABLES_PER_LEAF &&
+				MIN_RESOLUTION < _xywh.z)
+			{
+				grow();
+				addCollidable(obj);
+			} else {
+				return(_collidables.insert(obj).second);
+			}
+		} else {
+			for (int i = 0; i < 4; ++i) {
+				if (checkForOverlap(obj->getDims(), _children[i]->_xywh)) {
+					_children[i]->addCollidable(obj);
+				}
+			}
+		}
+	}
+
+	bool QNode::removeCollidable(ICollidable* obj) {
+		if (_children == nullptr) {
+			return static_cast<bool>(_collidables.erase(obj));
+		} else {
+			for (int i = 0; i < 4; ++i) {
+				if (checkForOverlap(obj->getDims(), _children[i]->_xywh)) {
+					_children[i]->removeCollidable(obj);
+				}
+			}
+		}
+	}
+
+	bool QNode::updateCollidable(ICollidable * obj) {
+		bool removed = removeCollidable(obj);
+		bool added = addCollidable(obj);
+		trim();
+		if (removed && added) {
+			return true;
+		}
+		return false;
+	}
+
+	void QNode::getCollidables(ICollidable* obj, std::set<ICollidable*> &collidables) {
+		if (_children == nullptr) {
+			for (auto it : _collidables) {
+				if (it != obj) {
+					collidables.insert(it);
+				}
+			}
+		} else {
+			for (int i = 0; i < 4; ++i) {
+				if (checkForOverlap(obj->getDims(), _children[i]->_xywh)) {
+					_children[i]->getCollidables(obj, collidables);
+				}
+			}
+		}
+	}
+
 	void QNode::grow() {
 		if (_children == nullptr) {
 			_children = (QNode**)malloc(4 * sizeof(QNode*));
@@ -23,8 +80,11 @@ namespace NDjinn {
 			_children[2] = new QNode(bL, this);
 			_children[3] = new QNode(bR, this);
 			std::cout << "Subdividing " << _xywh.x << "," << _xywh.y << " w:" << _xywh.z << " h:" << _xywh.w << std::endl;
-		}
-		else {
+			for (auto it : _collidables) {
+				addCollidable(it);
+			}
+			_collidables.clear();
+		} else {
 			for (int i = 0; i < 4; i++) {
 				_children[i]->grow();
 			}
@@ -45,12 +105,12 @@ namespace NDjinn {
 		}
 		// stage 2: detect and remove useless regions
 		if (combinableCount == 4) {
-			std::set<ICollidable*> combinedCollidables;
+			std::set<ICollidable*> mergedCollidables;
 			for (int i = 0; i < 4; i++) {
-				combinedCollidables.insert(_children[i]->_collidables.begin(), _children[i]->_collidables.end());
+				mergedCollidables.insert(_children[i]->_collidables.begin(), _children[i]->_collidables.end());
 			}
-			if (combinedCollidables.size() <= MAX_COLLIDABLES_PER_LEAF) {
-				_collidables = combinedCollidables;
+			if (mergedCollidables.size() <= MAX_COLLIDABLES_PER_LEAF) {
+				_collidables = mergedCollidables;
 				for (int i = 0; i < 4; i++) {
 					delete _children[i];
 				}
@@ -65,119 +125,18 @@ namespace NDjinn {
 		}
 	}
 
-	bool QNode::addCollidable(ICollidable * obj) {
-		if (_children == nullptr) {
-			if (_collidables.size() == MAX_COLLIDABLES_PER_LEAF && _xywh.w >= MAX_DIVIDE_SIZE) {
-				//leaf with more than one collidable
-				grow();
-				std::set<ICollidable*> collideCopy(_collidables);
-				collideCopy.insert(obj);
-				for (auto it : collideCopy) {
-					addCollidable(it);
-				}
-				_collidables.clear();
-				return true;
-			}
-			else {
-				//leaf node with no collidables
-				std::pair<CollideSet::iterator, bool> newInsertion;
-				newInsertion = _collidables.insert(obj);
-				if (newInsertion.second) { //true if inserted
-					return true;
-				}
-				return false;
-			}
-		}
-		else {
-			//non-leaf, check for overlap in one of the children
-			for (int i = 0; i < 4; ++i) {
-				glm::vec4 childDims(_children[i]->getDims());
-				if (checkForOverlap(obj->getDims(), childDims)) {
-					_children[i]->addCollidable(obj);
-				}
-			}
-		}
-	}
-
-	bool QNode::removeCollidable(ICollidable * obj) {
-		if (_children == nullptr) {
-			int numErased = _collidables.erase(obj);
-			if (numErased > 0) {
-				return true;
-			}
-			return false;
-		}
-		else {
-			for (int i = 0; i < 4; ++i) {
-				_children[i]->removeCollidable(obj);
-			}
-		}
-	}
-	
-	int QNode::updateCollidable(ICollidable * obj) {
-		bool removed = removeCollidable(obj);
-		bool added = addCollidable(obj);
-		trim();
-		if (removed && added) {
-			return 1;
-		}
-		fatalError("Quadtree doesn't abide bureaucracy, refuses to update obj.");
-		return 0;
-	}
-
-	void QNode::getCollidables(ICollidable * obj, glm::vec2 newPos, bool inMotion, std::set<ICollidable*>* collidables) {
-		static glm::vec4 newPosDims(newPos.x, newPos.y, obj->getDims().z, obj->getDims().w);
-		if (_children == nullptr) {
-			// leaf node, add collidables to watch set
-			collidables->insert(_collidables.begin(), _collidables.end());
-		}
-		else {
-			// branch node
-			for (int i = 0; i < 4; ++i) {
-				//check for overlap with children in current or next position
-				bool currPosOverlap = _children[i]->checkForOverlap(obj->getDims(), _children[i]->getDims());
-				bool newPosOverlap = _children[i]->checkForOverlap(newPosDims, _children[i]->getDims());
-				bool overlap = (currPosOverlap || newPosOverlap);
-				if (overlap) {
-					// recur at next level
-					_children[i]->getCollidables(obj, newPos, inMotion, collidables);
-				}
-			}
-		}
-	}
-
-	bool QNode::checkForOverlap(glm::vec4& objDims, glm::vec4& childDims) const {
+	bool QNode::checkForOverlap(const glm::vec4& objDims, const glm::vec4& childDims) const {
 		glm::vec2 objCorners[4];
 		objCorners[0] = glm::vec2(objDims.x, objDims.y + objDims.w); //TL
 		objCorners[1] = glm::vec2(objDims.x + objDims.z, objDims.y + objDims.w); //TR
 		objCorners[2] = glm::vec2(objDims.x, objDims.y); //BL
 		objCorners[3] = glm::vec2(objDims.x + objDims.z, objDims.y); //BR
 		for (int i = 0; i < 4; ++i) {
-			if (objCorners[i].x > childDims.x &&
-				objCorners[i].x < childDims.x + childDims.z &&
-				objCorners[i].y > childDims.y &&
-				objCorners[i].y < childDims.y + childDims.w)
-			{
-				return true; //yes, one of the corners is within the childDims region
-			}
+			if (objCorners[i].x > childDims.x && objCorners[i].x < childDims.x + childDims.z &&
+				objCorners[i].y > childDims.y && objCorners[i].y < childDims.y + childDims.w)
+			{ return true; }
 		}
 		return false;
-	}
-
-	QNode* QNode::findNode(QNode* startNode, ICollidable * obj) {
-		startNode->_children = nullptr;
-		if (startNode->_children == nullptr) {
-			auto it = _collidables.find(obj);
-			if (it != _collidables.end()) {
-				return this;
-			}
-			return nullptr;
-		}
-		else {
-			for (int i = 0; i < 4; ++i) {
-				findNode(startNode->_children[i], obj);
-			}
-		}
 	}
 
 	QNode* QNode::down(int childIndex) {

@@ -1,13 +1,19 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <NDjinn\AssetManager.h>
 #include <NDjinn\SpriteBatch.h>
 #include <NDjinn\Camera2D.h>
 #include <NDjinn\ICollidable.h>
 #include <NDjinn\QNode.h>
+#include <NDjinn\GLTexture.h>
 
 class Bullet : public NDjinn::ICollidable{
 private:
 	glm::vec4 _xywh;
+	NDjinn::GLTexture _tex;
+	glm::vec4 _uv;
+	NDjinn::Color _color;
+
 	float _v;
 	glm::vec2 _dir;
 
@@ -15,16 +21,12 @@ private:
 	std::set<ICollidable*> _collidables;
 
 public:
-	Bullet(glm::vec2 pos, glm::vec2 dir, float v, NDjinn::QNode* collider);
+	Bullet(glm::vec2 pos, glm::vec2 dir, float v);
 	~Bullet();
 
 	void init(NDjinn::QNode* collider);
-	void draw(NDjinn::SpriteBatch& sprite);
 	bool update(NDjinn::Camera2D& cam);
+	void draw(NDjinn::SpriteBatch& sprite);
 	// Inherited via ICollidable
-	virtual void registerCollidable() override;
-	virtual void getCollidables(glm::vec2 newPos, bool isMoving, std::set<ICollidable*>* collidables) override;
 	virtual glm::vec4 getDims() override;
-	// true if out of life
 };
-

@@ -13,11 +13,9 @@
 
 class Hero : public NDjinn::ICollidable{
 private:
-	static const int BULLET_LIFE = 1000;
-
+	glm::vec4 _xywh;
 	NDjinn::GLTexture _tex;
 	glm::vec4 _uv;
-	glm::vec4 _xywh;
 	NDjinn::Color _color;
 	float _speed;
 
@@ -47,8 +45,6 @@ public:
 	void setSpeed(float mult) { _speed *= mult; }
 
 	// via ICollidable
-	virtual void registerCollidable() override;
-	virtual void getCollidables(glm::vec2 newPos, bool isMoving, std::set<ICollidable*>* collidables) override;
 	virtual glm::vec4 getDims() override;
 };
 

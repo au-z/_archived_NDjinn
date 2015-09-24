@@ -54,7 +54,7 @@ void ZomB::mainLoop() {
 		_cam.update();
 
 		_hero.update(_cam);
-		//_peasant.update(_hero.getPos());
+		_peasant.update(_hero.getPos());
 		draw();
 
 		_fps = _fpsLimiter.end();
@@ -81,12 +81,6 @@ void ZomB::processInput() {
 			break;
 		case SDL_KEYDOWN:
 			_input.keyDown(e.key.keysym.sym);
-			if (_input.isKeyDown(SDLK_SPACE)) {
-				glm::vec2 mouseCoords = _cam.screenToWorldCoords(_input.getMouseCoords());
-				glm::vec2 dir(mouseCoords - _hero.getPos());
-				dir = glm::normalize(dir);
-				_hero.shoot(dir);
-			}
 			break;
 		case SDL_KEYUP:
 			_input.keyUp(e.key.keysym.sym);
@@ -136,10 +130,11 @@ void ZomB::processInput() {
 	if (_input.isKeyDown(SDLK_s)) {
 		_hero.move(glm::vec2(0.0f, -_hero.getSpeed()));
 	}
-
-	//TEST OUTPUT
-	if (_input.isKeyDown(SDLK_p)) {
-		
+	if (_input.isKeyDown(SDL_BUTTON_LEFT)) {
+		glm::vec2 mouseCoords = _cam.screenToWorldCoords(_input.getMouseCoords());
+		glm::vec2 dir(mouseCoords - _hero.getPos());
+		dir = glm::normalize(dir);
+		_hero.shoot(dir);
 	}
 }
 

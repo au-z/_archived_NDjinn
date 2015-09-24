@@ -1,51 +1,39 @@
 #pragma once
 #include "Bullet.h"
-#include <iostream>
-#include <glm/glm.hpp>
-#include <NDjinn\AssetManager.h>
-#include <NDjinn\GLTexture.h>
-#include <NDjinn\Window.h>
 
-Bullet::Bullet(glm::vec2 pos, glm::vec2 dir, float v, NDjinn::QNode* collider) : _xywh(glm::vec4(pos, 20, 20)), _dir(dir), _v(v)
+Bullet::Bullet(glm::vec2 pos, glm::vec2 dir, float v) : 
+	_xywh(glm::vec4(pos, 20, 20)), 
+	_dir(dir), 
+	_v(v)
 {
-	init(collider);
 }
 
 Bullet::~Bullet()
 {
+	_collider->removeCollidable(this);
 }
 
 void Bullet::init(NDjinn::QNode* collider) {
 	_collider = collider;
-	registerCollidable();
+	_tex = NDjinn::AssetManager::getTexture("assets/hero/kamehameha.png");
+	_color.r = 255; _color.g = 255; _color.b = 255, _color.a = 255;
+	_uv = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	_collider->addCollidable(this);
 }
 
 void Bullet::draw(NDjinn::SpriteBatch& sprite) {
-	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
-	static NDjinn::GLTexture tex = NDjinn::AssetManager::getTexture("assets/hero/kamehameha.png");
-	NDjinn::Color c; c.r = 255; c.g = 255; c.b = 255, c.a = 255;
-	sprite.draw(_xywh, uv, tex.id, 0.0f, c); //create new bullet sprite
+	sprite.draw(_xywh, _uv, _tex.id, 0.0f, _color);
 }
 
 bool Bullet::update(NDjinn::Camera2D& cam) {
 	glm::vec4 dirVec(_dir * _v, 0.0f, 0.0f);
 	glm::vec2 newPos(_xywh.x + dirVec.x, _xywh.y + dirVec.y);
-	_collider->getCollidables(this, newPos, true, &_collidables);
+	//getCollidables(*this, _collidables);
 
-	_xywh += dirVec; 
+	_xywh += dirVec;
 
-	_collider->updateCollidable(this);
+	//_collider->updateCollidable(this);
 	return !cam.isInView(glm::vec2(_xywh.x, _xywh.y));
 }
 
-void Bullet::registerCollidable() { _collider->addCollidable(this); }
-
-void Bullet::getCollidables(glm::vec2 newPos, bool isMoving, std::set<ICollidable*>* collidables)
-{
-	_collider->getCollidables(this, newPos, isMoving, collidables);
-}
-
-glm::vec4 Bullet::getDims()
-{
-	return _xywh;
-}
+glm::vec4 Bullet::getDims() { return _xywh; }

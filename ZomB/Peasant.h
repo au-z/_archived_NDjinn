@@ -43,8 +43,6 @@ public:
 	void setPos(float x, float y) { _xywh.x = x; _xywh.y = y; }
 
 	// Inherited via ICollidable
-	virtual void registerCollidable() override;
 	virtual glm::vec4 getDims() override;
-	virtual void getCollidables(glm::vec2 newPos, bool isMoving, std::set<ICollidable*>* collidables) override;
 };
 
