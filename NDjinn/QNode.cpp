@@ -35,20 +35,19 @@ namespace NDjinn {
 			return static_cast<bool>(_collidables.erase(obj));
 		} else {
 			for (int i = 0; i < 4; ++i) {
-				if (checkForOverlap(obj->getDims(), _children[i]->_xywh)) {
-					_children[i]->removeCollidable(obj);
-				}
+				_children[i]->removeCollidable(obj);
 			}
 		}
 	}
 
-	bool QNode::updateCollidable(ICollidable * obj) {
-		bool removed = removeCollidable(obj);
-		bool added = addCollidable(obj);
-		trim();
-		if (removed && added) {
+	bool QNode::updateCollidable(ICollidable * obj, bool isMoving) { // default false
+		//check if update is necessary
+		if (isMoving) {
+			removeCollidable(obj);
+			addCollidable(obj);
 			return true;
 		}
+		trim();
 		return false;
 	}
 
@@ -79,7 +78,7 @@ namespace NDjinn {
 			_children[1] = new QNode(tR, this);
 			_children[2] = new QNode(bL, this);
 			_children[3] = new QNode(bR, this);
-			std::cout << "Subdividing " << _xywh.x << "," << _xywh.y << " w:" << _xywh.z << " h:" << _xywh.w << std::endl;
+			//std::cout << "Subdividing " << _xywh.x << "," << _xywh.y << " w:" << _xywh.z << " h:" << _xywh.w << std::endl;
 			for (auto it : _collidables) {
 				addCollidable(it);
 			}
@@ -107,7 +106,9 @@ namespace NDjinn {
 		if (combinableCount == 4) {
 			std::set<ICollidable*> mergedCollidables;
 			for (int i = 0; i < 4; i++) {
-				mergedCollidables.insert(_children[i]->_collidables.begin(), _children[i]->_collidables.end());
+				for (auto it : _children[i]->_collidables) {
+					mergedCollidables.insert(it);
+				}
 			}
 			if (mergedCollidables.size() <= MAX_COLLIDABLES_PER_LEAF) {
 				_collidables = mergedCollidables;
@@ -116,7 +117,7 @@ namespace NDjinn {
 				}
 				delete _children;
 				_children = nullptr;
-				std::cout << "Combining into " << _xywh.x << "," << _xywh.y << " w:" << _xywh.z << " h:" << _xywh.w << std::endl;
+				//std::cout << "Combining into " << _xywh.x << "," << _xywh.y << " w:" << _xywh.z << " h:" << _xywh.w << std::endl;
 				return true; // the leaves were trimmed
 			}
 			else {

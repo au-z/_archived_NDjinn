@@ -24,7 +24,7 @@ void Peasant::init(NDjinn::QNode* collider, bool isZombie = false) {
 }
 
 bool Peasant::update(glm::vec2 heroPos) {
-	static unsigned int frame = 0;
+	/*static unsigned int frame = 0;
 
 	int dirX = (rand() % 2000) - 1000;
 	int dirY = (rand() % 2000) - 1000;
@@ -42,7 +42,8 @@ bool Peasant::update(glm::vec2 heroPos) {
 		frame = 0;
 	}
 
-	frame++;
+	frame++;*/
+	_collider->updateCollidable(this);
 	return false;
 }
 

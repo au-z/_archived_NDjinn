@@ -9,7 +9,7 @@
 #include <iostream>
 
 int main(int argc, char ** argv) {
-	glm::vec4 bounds(-100.0f, -100.0f, 200.0f, 200.0f);
+	/*glm::vec4 bounds(-100.0f, -100.0f, 200.0f, 200.0f);
 	NDjinn::QNode q(bounds , nullptr);
 
 	std::set<NDjinn::ICollidable*> c;
@@ -27,10 +27,10 @@ int main(int argc, char ** argv) {
 	q.trim();
 
 	q.getCollidables(&c2, c);
-	c.clear();
+	c.clear();*/
 
-	//ZomB zombieGame;
-	//zombieGame.run();
+	ZomB zombieGame;
+	zombieGame.run();
 
 	int x;
 	std::cin >> x;

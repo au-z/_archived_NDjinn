@@ -34,11 +34,11 @@ void Hero::move(glm::vec2 dir) {
 	//todo, react to collisions
 	_xywh.x += dir.x;
 	_xywh.y += dir.y;
+	_collider->updateCollidable(this);
 }
 
 bool Hero::update(NDjinn::Camera2D& cam) {
 	updateBullets(cam);
-	//_collider->updateCollidable(this);
 	_collidables.empty(); //clear set
 	return false;
 }

@@ -27,12 +27,13 @@ void Bullet::draw(NDjinn::SpriteBatch& sprite) {
 
 bool Bullet::update(NDjinn::Camera2D& cam) {
 	glm::vec4 dirVec(_dir * _v, 0.0f, 0.0f);
+	bool isMoving = (dirVec.x > 0.0f || dirVec.y > 0.0f);
 	glm::vec2 newPos(_xywh.x + dirVec.x, _xywh.y + dirVec.y);
 	//getCollidables(*this, _collidables);
 
 	_xywh += dirVec;
 
-	//_collider->updateCollidable(this);
+	_collider->updateCollidable(this, isMoving);
 	return !cam.isInView(glm::vec2(_xywh.x, _xywh.y));
 }
 

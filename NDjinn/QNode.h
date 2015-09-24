@@ -9,7 +9,7 @@ namespace NDjinn {
 	class QNode {
 	private:
 		const int MAX_COLLIDABLES_PER_LEAF = 1;
-		const int MIN_RESOLUTION = 10;
+		const int MIN_RESOLUTION = 20;
 		
 		const glm::vec4 _xywh;
 		QNode * _parent;
@@ -28,7 +28,7 @@ namespace NDjinn {
 		bool removeCollidable(ICollidable* obj);
 		void getCollidables(ICollidable* obj, std::set<ICollidable*> &collidables);
 		// update presupposes obj has a new position
-		bool updateCollidable(ICollidable* obj);
+		bool updateCollidable(ICollidable* obj, bool isMoving = false);
 		bool trim(); // T = trimming happened
 		//void getCollidables(ICollidable* obj, glm::vec2 newPos, bool inMotion, std::set<ICollidable*>* collidables);
 
