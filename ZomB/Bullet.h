@@ -9,6 +9,7 @@
 
 class Bullet : public NDjinn::ICollidable{
 private:
+	NDjinn::CollidableType _type;
 	glm::vec4 _xywh;
 	NDjinn::GLTexture _tex;
 	glm::vec4 _uv;
@@ -29,4 +30,5 @@ public:
 	void draw(NDjinn::SpriteBatch& sprite);
 	// Inherited via ICollidable
 	virtual glm::vec4 getDims() override;
+	virtual NDjinn::CollidableType getType() override;
 };

@@ -13,13 +13,13 @@ namespace NDjinn {
 
 	bool QNode::addCollidable(ICollidable* obj) {
 		if (_children == nullptr) {
-			if (_collidables.size() == MAX_COLLIDABLES_PER_LEAF &&
-				MIN_RESOLUTION < _xywh.z)
+			if (nodeOverflow() && MIN_RESOLUTION < _xywh.z)
 			{
 				grow();
 				addCollidable(obj);
-			} else {
-				return(_collidables.insert(obj).second);
+			}
+			else {
+				return(_objs.insert(obj).second);
 			}
 		} else {
 			for (int i = 0; i < 4; ++i) {
@@ -32,7 +32,7 @@ namespace NDjinn {
 
 	bool QNode::removeCollidable(ICollidable* obj) {
 		if (_children == nullptr) {
-			return static_cast<bool>(_collidables.erase(obj));
+			return static_cast<bool>(_objs.erase(obj));
 		} else {
 			for (int i = 0; i < 4; ++i) {
 				_children[i]->removeCollidable(obj);
@@ -51,17 +51,15 @@ namespace NDjinn {
 		return false;
 	}
 
-	void QNode::getCollidables(ICollidable* obj, std::set<ICollidable*> &collidables) {
+	void QNode::getCollidables(ICollidable* col, std::set<ICollidable*> &collidables) {
 		if (_children == nullptr) {
-			for (auto it : _collidables) {
-				if (it != obj) {
-					collidables.insert(it);
-				}
+			for (auto it : _objs) {
+				if (it != col) { collidables.insert(it); }
 			}
 		} else {
 			for (int i = 0; i < 4; ++i) {
-				if (checkForOverlap(obj->getDims(), _children[i]->_xywh)) {
-					_children[i]->getCollidables(obj, collidables);
+				if (checkForOverlap(col->getDims(), _children[i]->_xywh)) {
+					_children[i]->getCollidables(col, collidables);
 				}
 			}
 		}
@@ -79,10 +77,10 @@ namespace NDjinn {
 			_children[2] = new QNode(bL, this);
 			_children[3] = new QNode(bR, this);
 			//std::cout << "Subdividing " << _xywh.x << "," << _xywh.y << " w:" << _xywh.z << " h:" << _xywh.w << std::endl;
-			for (auto it : _collidables) {
+			for (auto it : _objs) {
 				addCollidable(it);
 			}
-			_collidables.clear();
+			_objs.clear();
 		} else {
 			for (int i = 0; i < 4; i++) {
 				_children[i]->grow();
@@ -104,14 +102,14 @@ namespace NDjinn {
 		}
 		// stage 2: detect and remove useless regions
 		if (combinableCount == 4) {
-			std::set<ICollidable*> mergedCollidables;
+			std::set<ICollidable*> combinedObjs;
 			for (int i = 0; i < 4; i++) {
-				for (auto it : _children[i]->_collidables) {
-					mergedCollidables.insert(it);
+				for (auto it : _children[i]->_objs) {
+					combinedObjs.insert(it);
 				}
 			}
-			if (mergedCollidables.size() <= MAX_COLLIDABLES_PER_LEAF) {
-				_collidables = mergedCollidables;
+			if (combinedObjs.size() <= MAX_COLLIDABLES_PER_LEAF) {
+				_objs = combinedObjs;
 				for (int i = 0; i < 4; i++) {
 					delete _children[i];
 				}
@@ -124,6 +122,27 @@ namespace NDjinn {
 				return false;
 			}
 		}
+	}
+
+	bool QNode::nodeOverflow() {
+		int collidableCount = 0;
+		bool hasLazyCollidable = false;
+		for (auto it : _objs) {
+			// we only subdivide for strict collidables
+			if (it->getType() == CollidableType::Strict) {
+				collidableCount++;
+			}
+			else {
+				hasLazyCollidable = true;
+			}
+		}
+
+		//treat all nearby lazyCollidables as one collidable
+		if (hasLazyCollidable) {
+			collidableCount++;
+		}
+
+		return(collidableCount >= MAX_COLLIDABLES_PER_LEAF);
 	}
 
 	bool QNode::checkForOverlap(const glm::vec4& objDims, const glm::vec4& childDims) const {

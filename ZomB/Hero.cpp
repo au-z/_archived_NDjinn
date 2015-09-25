@@ -4,6 +4,7 @@
 #include "Hero.h"
 
 Hero::Hero() :
+	_type(NDjinn::CollidableType::Strict),
 	_xywh(0.0f, 0.0f, 50.0f, 50.0f),
 	_bulletSpeed(8.0f),
 	_speed(4.0f)
@@ -63,3 +64,5 @@ void Hero::draw(NDjinn::SpriteBatch& sprites) {
 }
 
 glm::vec4 Hero::getDims() { return _xywh; }
+
+NDjinn::CollidableType Hero::getType() { return _type; }

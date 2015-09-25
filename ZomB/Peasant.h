@@ -12,12 +12,13 @@ class Peasant : public NDjinn::ICollidable{
 private:
 	const int SMOOTHING_COUNT = 20;
 
-	bool _isZombie;
+	NDjinn::CollidableType _type;
+	glm::vec4 _xywh;
 	NDjinn::GLTexture _tex;
 	glm::vec4 _uv;
-	glm::vec4 _xywh;
 	NDjinn::Color _color;
 	float _speed;
+	bool _isZombie;
 
 	std::vector<glm::vec2> _prevDirs;
 
@@ -44,5 +45,6 @@ public:
 
 	// Inherited via ICollidable
 	virtual glm::vec4 getDims() override;
+	virtual NDjinn::CollidableType getType() override;
 };
 

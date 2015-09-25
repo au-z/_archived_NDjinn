@@ -8,7 +8,7 @@
 namespace NDjinn {
 	class QNode {
 	private:
-		const int MAX_COLLIDABLES_PER_LEAF = 1;
+		const int MAX_COLLIDABLES_PER_LEAF = 5;
 		const int MIN_RESOLUTION = 20;
 		
 		const glm::vec4 _xywh;
@@ -16,9 +16,10 @@ namespace NDjinn {
 		QNode ** _children;
 
 		typedef std::set<ICollidable*> CollideSet;
-		CollideSet _collidables;
+		CollideSet _objs;
 
 		void grow();
+		bool nodeOverflow();
 		bool checkForOverlap(const glm::vec4& objDims, const glm::vec4& childDims) const;
 	public:
 		QNode(glm::vec4& xywh, QNode* parent);

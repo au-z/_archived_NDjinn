@@ -5,6 +5,7 @@
 #include "Peasant.h"
 
 Peasant::Peasant() :
+	_type(NDjinn::CollidableType::Strict),
 	_xywh(-100.0f, -100.0f, 50.0f, 50.0f),
 	_uv(0.0f, 0.0f, 1.0f, 1.0f),
 	_speed(5.0f),
@@ -61,3 +62,5 @@ void Peasant::setTex() {
 }
 
 glm::vec4 Peasant::getDims() { return _xywh; }
+
+NDjinn::CollidableType Peasant::getType() { return _type; }

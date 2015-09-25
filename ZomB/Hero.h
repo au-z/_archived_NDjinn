@@ -13,6 +13,7 @@
 
 class Hero : public NDjinn::ICollidable{
 private:
+	NDjinn::CollidableType _type;
 	glm::vec4 _xywh;
 	NDjinn::GLTexture _tex;
 	glm::vec4 _uv;
@@ -24,6 +25,7 @@ private:
 
 	NDjinn::QNode* _collider;
 	std::set<ICollidable*> _collidables;
+
 
 	void updateBullets(NDjinn::Camera2D& cam);
 public:
@@ -46,5 +48,6 @@ public:
 
 	// via ICollidable
 	virtual glm::vec4 getDims() override;
+	virtual NDjinn::CollidableType getType() override;
 };
 

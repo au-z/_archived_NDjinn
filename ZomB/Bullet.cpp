@@ -2,6 +2,7 @@
 #include "Bullet.h"
 
 Bullet::Bullet(glm::vec2 pos, glm::vec2 dir, float v) : 
+	_type(NDjinn::CollidableType::Lazy),
 	_xywh(glm::vec4(pos, 20, 20)), 
 	_dir(dir), 
 	_v(v)
@@ -38,3 +39,8 @@ bool Bullet::update(NDjinn::Camera2D& cam) {
 }
 
 glm::vec4 Bullet::getDims() { return _xywh; }
+
+NDjinn::CollidableType Bullet::getType()
+{
+	return _type;
+}
